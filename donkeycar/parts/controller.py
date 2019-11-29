@@ -212,6 +212,25 @@ class JoystickCreator(Joystick):
         return button, button_state, axis, axis_val
 
 
+class ArduinoHIDJoystick(Joystick):
+    '''
+    An interface to a Arduino HID joystick available at /dev/input/js0
+    '''
+    def __init__(self, *args, **kwargs):
+        super(ArduinoHIDJoystick, self).__init__(*args, **kwargs)
+
+        self.axis_names = {
+            0x00 : 'left_stick_horz',
+            0x04 : 'right_stick_vert',
+        }
+
+        self.button_names = {
+            0x120 : 'mode',    #288
+            0x121 : 'R1',      #289
+            0x122 : 'L1',      #290
+        }
+
+
 class PS3JoystickOld(Joystick):
     '''
     An interface to a physical PS3 joystick available at /dev/input/js0
@@ -978,6 +997,44 @@ class JoystickCreatorController(JoystickController):
         '''
         pass
 
+class ArduinoHIDJoystickController(JoystickController):
+    '''
+    A Controller object that maps inputs to actions
+    '''
+    def __init__(self, *args, **kwargs):
+        super(ArduinoHIDJoystickController, self).__init__(*args, **kwargs)
+
+
+    def init_js(self):
+        '''
+        attempt to init joystick
+        '''
+        try:
+            self.js = ArduinoHIDJoystick(self.dev_fn)
+            if not self.js.init():
+                self.js = None
+        except FileNotFoundError:
+            print(self.dev_fn, "not found.")
+            self.js = None
+        return self.js is not None
+
+
+    def init_trigger_maps(self):
+        '''
+        init set of mapping from buttons to function calls for ps4
+        '''
+
+        self.button_down_trigger_map = {
+            'mode' : self.toggle_mode,
+            'L1' : self.increase_max_throttle,
+            'R1' : self.decrease_max_throttle,
+        }
+
+        self.axis_trigger_map = {
+            'left_stick_horz' : self.set_steering,
+            'right_stick_vert' : self.set_throttle,
+        }
+
 
 class PS3JoystickController(JoystickController):
     '''
@@ -1418,6 +1475,8 @@ def get_js_controller(cfg):
         cont_class = LogitechJoystickController
     elif cfg.CONTROLLER_TYPE == "rc3":
         cont_class = RC3ChanJoystickController
+    elif cfg.CONTROLLER_TYPE == "ArduinoHID":
+        cont_class = ArduinoHIDJoystickController    
     else:
         raise("Unknown controller type: " + cfg.CONTROLLER_TYPE)
 
