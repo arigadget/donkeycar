@@ -95,6 +95,12 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
             cam = DonkeyGymEnv(cfg.DONKEY_SIM_PATH, env_name=cfg.DONKEY_GYM_ENV_NAME)
             threaded = True
             inputs = ['angle', 'throttle']
+        elif cfg.CAMERA_TYPE == "CORALGS":
+            from donkeycar.parts.camera import CoralCameraGS
+            cam = CoralCameraGS(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)
+        elif cfg.CAMERA_TYPE == "CORALCV":
+            from donkeycar.parts.camera import CoralCameraCV
+            cam = CoralCameraCV(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)
         elif cfg.CAMERA_TYPE == "PICAM":
             from donkeycar.parts.camera import PiCamera
             cam = PiCamera(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)
@@ -204,6 +210,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
               outputs=['led/blink_rate'])
 
         V.add(led, inputs=['led/blink_rate'])
+        
 
     def get_record_alert_color(num_records):
         col = (0, 0, 0)
@@ -263,10 +270,10 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
             'imu/gyr_x', 'imu/gyr_y', 'imu/gyr_z'], threaded=True)
 
     #Serial USB interface
-    #if cfg.SERIAL_ARDUINO:
-    #    from donkeycar.parts.serial_arduino import Serial_sense
-    #    serial_sensor = Serial_sense(dev='/dev/ttyUSB0')       
-    #    V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
+    if cfg.SERIAL_ARDUINO:
+        from donkeycar.parts.serial_arduino import Serial_sense
+        serial_sensor = Serial_sense(dev='/dev/ttyUSB0')       
+        V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
 
     class ImgPreProcess():
         '''
@@ -408,12 +415,12 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
           outputs=['angle', 'throttle'])
 
     #Sensor controller
-    #if cfg.SERIAL_ARDUINO:
-    #    from donkeycar.parts.sensor_controller import SensorController
-    #    sensor_controller = SensorController()       
-    #    V.add(sensor_controller, 
-    #        inputs=['user/mode', 'throttle', 'serial_sensor/status'],
-    #        outputs=['throttle'])
+    if cfg.SERIAL_ARDUINO:
+        from donkeycar.parts.sensor_controller import SensorController
+        sensor_controller = SensorController()       
+        V.add(sensor_controller, 
+            inputs=['user/mode', 'throttle', 'serial_sensor/status'],
+            outputs=['throttle'])
 
     #to give the car a boost when starting ai mode in a race.
     aiLauncher = AiLaunch(cfg.AI_LAUNCH_DURATION, cfg.AI_LAUNCH_THROTTLE, cfg.AI_LAUNCH_KEEP_ENABLED)
@@ -468,9 +475,9 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
                                         zero_pulse=cfg.THROTTLE_STOPPED_PWM, 
                                         min_pulse=cfg.THROTTLE_REVERSE_PWM)
 
-        V.add(steering, inputs=['angle'], threaded=True)
-        V.add(throttle, inputs=['throttle'], threaded=True)
-
+        V.add(steering, inputs=['angle'])
+        V.add(throttle, inputs=['throttle'])
+    
 
     elif cfg.DRIVE_TRAIN_TYPE == "DC_STEER_THROTTLE":
         from donkeycar.parts.actuator import Mini_HBridge_DC_Motor_PWM
@@ -510,7 +517,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         from donkeycar.parts.actuator import Mini_HBridge_DC_Motor_PWM
         motor = Mini_HBridge_DC_Motor_PWM(cfg.HBRIDGE_PIN_FWD, cfg.HBRIDGE_PIN_BWD)
 
-        V.add(steering, inputs=['angle'], threaded=True)
+        V.add(steering, inputs=['angle'])
         V.add(motor, inputs=["throttle"])
 
     
@@ -551,7 +558,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         V.add(pub, inputs=['jpg/bin'])
 
     if type(ctr) is LocalWebController:
-        print("You can now go to <your pis hostname.local>:8887 to drive your car.")
+        print("You can now go to <your pi/coral ip address>:8887 to drive your car.")
     elif isinstance(ctr, JoystickController):
         print("You can now move your joystick to drive your car.")
         #tell the controller about the tub        
@@ -580,10 +587,9 @@ if __name__ == '__main__':
     if args['drive']:
         model_type = args['--type']
         camera_type = args['--camera']
-        drive(cfg, model_path=args['--model'], use_joystick=args['--js'],
-              model_type=model_type, camera_type=camera_type,
-              meta=args['--meta'])
-
+        drive(cfg, model_path=args['--model'], use_joystick=args['--js'], model_type=model_type, camera_type=camera_type,
+            meta=args['--meta'])
+    
     if args['train']:
         from train import multi_train, preprocessFileList
         
