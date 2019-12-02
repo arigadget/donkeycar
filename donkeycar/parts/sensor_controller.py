@@ -13,12 +13,12 @@ class SensorController():
 
     def run(self, mode, ai_throttle, status):
         new_throttle = ai_throttle
-
+        # temporary changing for debugging
         if mode != "local":
-            power = self.power_dict[status]
-            new_throttle = new_throttle * power
+            power_rate = self.power_dict[status]
+            new_throttle = new_throttle * power_rate
 
-        print(power)
+        print(power_rate)
         print(new_throttle)
         return new_throttle
 

@@ -263,10 +263,10 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
             'imu/gyr_x', 'imu/gyr_y', 'imu/gyr_z'], threaded=True)
 
     #Serial USB interface
-    #if cfg.SERIAL_ARDUINO:
-    #    from donkeycar.parts.serial_arduino import Serial_sense
-    #    serial_sensor = Serial_sense(dev='/dev/ttyUSB0')       
-    #    V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
+    if cfg.SERIAL_ARDUINO:
+        from donkeycar.parts.serial_arduino import Serial_sense
+        serial_sensor = Serial_sense(dev='/dev/ttyUSB0', baudrate=115200)       
+        V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
 
     class ImgPreProcess():
         '''
@@ -407,14 +407,6 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
                   'pilot/angle', 'pilot/throttle'], 
           outputs=['angle', 'throttle'])
 
-    #Sensor controller
-    #if cfg.SERIAL_ARDUINO:
-    #    from donkeycar.parts.sensor_controller import SensorController
-    #    sensor_controller = SensorController()       
-    #    V.add(sensor_controller, 
-    #        inputs=['user/mode', 'throttle', 'serial_sensor/status'],
-    #        outputs=['throttle'])
-
     #to give the car a boost when starting ai mode in a race.
     aiLauncher = AiLaunch(cfg.AI_LAUNCH_DURATION, cfg.AI_LAUNCH_THROTTLE, cfg.AI_LAUNCH_KEEP_ENABLED)
     
@@ -453,6 +445,14 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
     #Drive train setup
     if cfg.DONKEY_GYM:
         pass
+
+    #Throttle controller from sensors on Arduino
+    if cfg.SERIAL_ARDUINO:
+        from donkeycar.parts.sensor_controller import SensorController
+        sensor_controller = SensorController()       
+        V.add(sensor_controller, 
+            inputs=['user/mode', 'throttle', 'serial_sensor/status'],
+            outputs=['throttle'])    
 
     elif cfg.DRIVE_TRAIN_TYPE == "SERVO_ESC":
         from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
