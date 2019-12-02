@@ -9,7 +9,7 @@ class SensorController():
     '''
 
     def __init__(self):
-        self.power_dict = {b'\x00':0.0, b'F':100.0, b'M':70.0, b'S':40.0, b'E':0.0}
+        self.power_dict = {b'\x00':0.0, b'F':1.0, b'M':0.7, b'S':0.4, b'E':0.0}
 
     def run(self, mode, ai_throttle, status):
         new_throttle = ai_throttle

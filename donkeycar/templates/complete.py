@@ -441,18 +441,18 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
 
     if cfg.RECORD_DURING_AI:
         V.add(AiRecordingCondition(), inputs=['user/mode', 'recording'], outputs=['recording'])
-    
-    #Drive train setup
-    if cfg.DONKEY_GYM:
-        pass
 
-    #Throttle controller from sensors on Arduino
+    #Throttle controller from sensors on Arduino   
     if cfg.SERIAL_ARDUINO:
         from donkeycar.parts.sensor_controller import SensorController
         sensor_controller = SensorController()       
         V.add(sensor_controller, 
             inputs=['user/mode', 'throttle', 'serial_sensor/status'],
-            outputs=['throttle'])    
+            outputs=['throttle'])       
+    
+    #Drive train setup
+    if cfg.DONKEY_GYM:
+        pass
 
     elif cfg.DRIVE_TRAIN_TYPE == "SERVO_ESC":
         from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
