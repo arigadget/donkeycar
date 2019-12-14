@@ -1226,13 +1226,13 @@ class LogitechJoystickController(JoystickController):
             'Y': self.erase_last_N_records,
             'A': self.emergency_stop,
             'back': self.toggle_constant_throttle,
-            "R1" : self.chaos_monkey_on_right,
-            "L1" : self.chaos_monkey_on_left,
+            "R1" : self.increase_max_throttle,
+            "L1" : self.decrease_max_throttle,
         }
 
         self.button_up_trigger_map = {
-            "R1" : self.chaos_monkey_off,
-            "L1" : self.chaos_monkey_off,
+            "R1" : self.increase_max_throttle,
+            "L1" : self.decrease_max_throttle,
         }
 
         self.axis_trigger_map = {
