@@ -538,3 +538,17 @@ class FPSTimer(object):
             print('fps', 100.0 / (e - self.t))
             self.t = time.time()
             self.iter = 0
+
+def detectPlatform():
+    try:
+        model_info = open("/sys/firmware/devicetree/base/model").read()
+        if 'Raspberry Pi' in model_info:
+            #print("Detected Raspberry Pi.")
+            return "raspberry"
+        if 'MX8MQ' in model_info:
+            #print("Detected Tinker Edge T.")
+            return "tinkeredget"
+        return "unknown"
+    except:
+        #print("Could not detect environment. Assuming generic Linux.")
+        return "unknown"
