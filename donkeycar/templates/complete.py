@@ -95,6 +95,12 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
             cam = DonkeyGymEnv(cfg.DONKEY_SIM_PATH, env_name=cfg.DONKEY_GYM_ENV_NAME)
             threaded = True
             inputs = ['angle', 'throttle']
+        elif cfg.CAMERA_TYPE == "CORALGS":
+            from donkeycar.parts.camera import CoralCameraGS
+            cam = CoralCameraGS(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)
+        elif cfg.CAMERA_TYPE == "CORALCV":
+            from donkeycar.parts.camera import CoralCameraCV
+            cam = CoralCameraCV(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)
         elif cfg.CAMERA_TYPE == "PICAM":
             from donkeycar.parts.camera import PiCamera
             cam = PiCamera(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH)

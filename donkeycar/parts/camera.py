@@ -10,6 +10,181 @@ class BaseCamera:
     def run_threaded(self):
         return self.frame
 
+class CoralCameraGS(BaseCamera):
+    '''
+    Camera for Tinker Edge T 
+    '''
+    def run_pipeline(self):
+        from gi.repository import GLib, GObject, Gst, GstBase
+
+        SRC_WIDTH = 640
+        SRC_HEIGHT = 480
+        SRC_RATE = '30/1'
+        SRC_ELEMENT = 'v4l2src'
+
+        SINK_WIDTH = 640
+        SINK_HEIGHT = 480
+        SINK_ELEMENT = ('appsink name=appsink sync=false emit-signals=true '
+                        'max-buffers=1 drop=true')
+        SCREEN_SINK = 'glimagesink sync=false'
+        FAKE_SINK = 'fakesink sync=false'
+
+        SRC_CAPS = 'video/x-raw,format=YUY2,width={width},height={height},framerate={rate}'
+        SINK_CAPS = 'video/x-raw,format=RGB,width={width},height={height}'
+        LEAKY_Q = 'queue max-size-buffers=1 leaky=downstream'
+
+        PIPELINE = '''
+            {src_element} ! {src_caps} ! {leaky_q} ! tee name=t
+            t. ! {leaky_q} ! {screen_sink}
+            t. ! {leaky_q} ! videoconvert ! {sink_caps} ! {sink_element}
+            '''
+        src_caps = SRC_CAPS.format(width=SRC_WIDTH, height=SRC_HEIGHT, rate=SRC_RATE)
+        sink_caps = SINK_CAPS.format(width=SINK_WIDTH, height=SINK_HEIGHT)
+        screen_sink = FAKE_SINK
+
+        pipeline = PIPELINE.format(
+            leaky_q=LEAKY_Q,
+            src_element=SRC_ELEMENT,
+            src_caps=src_caps,
+            sink_caps=sink_caps,
+            sink_element=SINK_ELEMENT,
+            screen_sink=screen_sink)
+
+        self.pipeline = Gst.parse_launch(pipeline)
+        self.appsink = self.pipeline.get_by_name('appsink')
+
+        loop = GObject.MainLoop()
+        self.pipeline.set_state(Gst.State.PLAYING)
+
+    def __init__(self, image_w=160, image_h=120, image_d=3, framerate=60):
+        import gi
+        gi.require_version('Gst', '1.0')
+        gi.require_version('GstBase', '1.0')
+
+        from gi.repository import GLib, GObject, Gst, GstBase
+        GObject.threads_init()
+        Gst.init(None)
+
+        self.w = image_w
+        self.h = image_h
+        self.running = True
+        self.frame = None
+        self.appsink = None
+
+        CAMERA_INIT_QUERY_SYSFS_NODE = '/sys/module/ov5645_camera_mipi_v2/parameters/ov5645_initialized'
+        try:
+            with open(CAMERA_INIT_QUERY_SYSFS_NODE) as init_file:
+                init_file.seek(0)
+                init = init_file.read()
+                if int(init) != 1:
+                    raise Exception('Cannot find ov5645 CSI camera, ' +
+                               'check that your camera is connected')
+        except Exception as ex:
+            print(ex)
+
+        # Turn off autofocus
+        AF_SYSFS_NODE = '/sys/module/ov5645_camera_mipi_v2/parameters/ov5645_af'
+        with open(AF_SYSFS_NODE, 'w+') as sysfs:
+            try: 
+                self.sysfs.write('0')
+                self.sysfs.flush()
+            except:
+                pass
+
+    def init_camera(self):
+        # initialize the camera and stream
+        self.run_pipeline()
+        self.poll_camera()
+        print('CoralCamera loaded.. .warming camera')
+ 
+    def update(self):
+        self.init_camera()
+
+        while self.running:
+            self.poll_camera()
+
+    def poll_camera(self):
+        from gi.repository import GLib, GObject, Gst, GstBase
+
+        sample = self.appsink.emit('pull-sample')
+
+        buf = sample.get_buffer()
+        result, mapinfo = buf.map(Gst.MapFlags.READ)
+        #print('mapinfo', mapinfo)
+        if result:
+            caps = sample.get_caps()
+            width = caps.get_structure(0).get_value('width')
+            height = caps.get_structure(0).get_value('height')
+            img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
+            self.frame = img.resize((self.w, self.h))
+        buf.unmap(mapinfo)
+        return np.asarray(self.frame)
+
+    def run_threaded(self):
+        return np.asarray(self.frame)
+    
+    def shutdown(self):
+        from gi.repository import GLib, GObject, Gst, GstBase
+
+        self.running = False
+        print('stopping CoralCamera')
+        # Clean up.
+        self.pipeline.set_state(Gst.State.NULL)
+        while GLib.MainContext.default().iteration(False):
+            pass
+        time.sleep(.5)
+        del(self.camera)
+
+
+class CoralCameraCV(BaseCamera):
+    '''
+    Camera for Tinker Edge T(5M Ominivision based camera)
+    '''
+    def __init__(self, image_w=160, image_h=120, image_d=3, framerate=30):
+        self.w = image_w
+        self.h = image_h
+        self.running = True
+        self.frame = None
+
+    def init_camera(self):
+        import cv2
+        # initialize the camera and stream
+        # /dev/input/video0,1
+        fn_video = 1
+        self.camera = cv2.VideoCapture(fn_video)
+
+        self.poll_camera()
+        print('CoralCamera loaded.. .warming camera')
+        time.sleep(2)
+
+    def update(self):
+        self.init_camera()
+
+        while self.running:
+            self.poll_camera()
+
+    def poll_camera(self):
+        import cv2
+
+        #while True:
+        #    self.ret , frame = self.camera.read()
+        #    print("return: ", self.ret)
+        #    if self.ret == True:
+        #       break
+        self.ret, frame = self.camera.read()
+        frame = cv2.resize(frame, dsize=(160, 120))
+        self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    def run(self):
+        self.poll_camera()
+        return self.frame
+
+    def shutdown(self):
+        self.running = False
+        time.sleep(.5)
+        del(self.camera)
+
+
 class PiCamera(BaseCamera):
     def __init__(self, image_w=160, image_h=120, image_d=3, framerate=20):
         from picamera.array import PiRGBArray
