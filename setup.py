@@ -56,6 +56,9 @@ setup(name='donkeycar',
                     'nano': [
                         'Adafruit_PCA9685',                        
                         ],
+                    'edget': [
+                        'Adafruit_PCA9685',                        
+                        ],
                     'pc': [
                         'matplotlib',
                         ],
