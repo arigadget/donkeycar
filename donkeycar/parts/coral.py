@@ -70,13 +70,15 @@ class InferenceEngine(BasicEngine):
     Raises:
       ValueError: when input param is invalid.
     """
-    _, self._raw_result = self.RunInference(
-        input_tensor)
+    #_, self._raw_result = self.RunInference(
+    #    input_tensor)
+    _, self._raw_result = self.run_inference(
+        input_tensor)    
     return [self._raw_result]
 
 
-
 class CoralLinearPilot(object):
+  import time 
   '''
   Base class for TFlite models that will provide steering and throttle to guide a car.
   '''
@@ -89,5 +91,8 @@ class CoralLinearPilot(object):
       self.engine = InferenceEngine(model_path)
 
   def run(self, image):
+      start_time = time.perf_counter()
       steering, throttle = self.engine.Inference(image)[0]
+      end_time =  time.perf_counter()
+      print('Elapsed time:{:.7}'.format(end_time - start_time))
       return steering, throttle
