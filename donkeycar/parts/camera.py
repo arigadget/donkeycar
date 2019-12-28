@@ -53,7 +53,7 @@ class CoralCameraGS(BaseCamera):
         self.pipeline = Gst.parse_launch(pipeline)
         self.appsink = self.pipeline.get_by_name('appsink')
 
-        self.loop = GObject.MainLoop()
+        #self.loop = GObject.MainLoop()
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def __init__(self, image_w=160, image_h=120, image_d=3, framerate=60):
@@ -62,7 +62,7 @@ class CoralCameraGS(BaseCamera):
         gi.require_version('GstBase', '1.0')
 
         from gi.repository import GLib, GObject, Gst, GstBase
-        GObject.threads_init()
+        #GObject.threads_init()
         Gst.init(None)
 
         self.w = image_w
@@ -95,7 +95,7 @@ class CoralCameraGS(BaseCamera):
         # initialize the camera and stream
         self.run_pipeline()
         self.poll_camera()
-        print('CoralCamera loaded.. .warming camera')
+        print('Coral Camera loaded.. .warming camera')
  
     def update(self):
         self.init_camera()
@@ -127,10 +127,10 @@ class CoralCameraGS(BaseCamera):
         from gi.repository import GLib, GObject, Gst, GstBase
 
         self.running = False
-        print('stopping CoralCamera')
+        print('stopping Coral Camera')
         # Clean up.
         self.pipeline.set_state(Gst.State.NULL)
-        self.loop.quit()
+        #self.loop.quit()
         #while GLib.MainContext.default().iteration(False):
         #    pass
         time.sleep(.5)
