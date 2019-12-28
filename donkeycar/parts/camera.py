@@ -12,7 +12,7 @@ class BaseCamera:
 
 class CoralCameraGS(BaseCamera):
     '''
-    Camera for Tinker Edge T 
+    Coral Camera for Tinker Edge T 
     '''
     def run_pipeline(self):
         from gi.repository import GLib, GObject, Gst, GstBase
@@ -53,7 +53,7 @@ class CoralCameraGS(BaseCamera):
         self.pipeline = Gst.parse_launch(pipeline)
         self.appsink = self.pipeline.get_by_name('appsink')
 
-        loop = GObject.MainLoop()
+        self.loop = GObject.MainLoop()
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def __init__(self, image_w=160, image_h=120, image_d=3, framerate=60):
@@ -130,8 +130,9 @@ class CoralCameraGS(BaseCamera):
         print('stopping CoralCamera')
         # Clean up.
         self.pipeline.set_state(Gst.State.NULL)
-        while GLib.MainContext.default().iteration(False):
-            pass
+        self.loop.quit()
+        #while GLib.MainContext.default().iteration(False):
+        #    pass
         time.sleep(.5)
         del(self.camera)
 
