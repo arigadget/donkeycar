@@ -427,10 +427,11 @@ def get_model_by_type(model_type, cfg):
     given the string model_type and the configuration settings in cfg
     create a Keras model and return it.
     '''
-    from donkeycar.parts.keras import KerasRNN_LSTM, KerasBehavioral, \
-        KerasCategorical, KerasIMU, KerasLinear, Keras3D_CNN, \
-        KerasLocalizer, KerasLatent
-    from donkeycar.parts.tflite import TFLitePilot
+    if detectPlatform() != 'tinkeredget':
+        from donkeycar.parts.keras import KerasRNN_LSTM, KerasBehavioral, \
+            KerasCategorical, KerasIMU, KerasLinear, Keras3D_CNN, \
+            KerasLocalizer, KerasLatent
+        from donkeycar.parts.tflite import TFLitePilot
  
     if model_type is None:
         model_type = cfg.DEFAULT_MODEL_TYPE
