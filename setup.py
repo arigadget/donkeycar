@@ -57,6 +57,7 @@ setup(name='donkeycar',
                         'Adafruit_PCA9685',                        
                         ],
                     'edget': [
+                        'evdev',
                         'Adafruit_PCA9685',                        
                         ],
                     'pc': [
