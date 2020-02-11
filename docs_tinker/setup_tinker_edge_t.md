@@ -46,7 +46,7 @@ Get the donkeycar from Github.
 ```bash
 git clone https://github.com/arigadget/donkeycar
 cd donkeycar
-pip install -e .[edget]
+pip install -e .[tpu]
 ```
 
 ##  Step 12: Install Optional OpenCV

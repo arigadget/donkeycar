@@ -56,7 +56,7 @@ setup(name='donkeycar',
                     'nano': [
                         'Adafruit_PCA9685',                        
                         ],
-                    'edget': [
+                    'tpu': [
                         'evdev',
                         'Adafruit_PCA9685',                        
                         ],
