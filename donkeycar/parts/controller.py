@@ -17,7 +17,7 @@ class Joystick_evdev(object):
     '''
     An interface to a physical joystick via /dev/input/eventx
     '''
-    def __init__(self, dev_fn='/dev/input/event1'):
+    def __init__(self, dev_fn='/dev/input/event2'):
         self.axis_states = {}
         self.button_states = {}
         self.axis_names = {}
@@ -1276,8 +1276,8 @@ class PS4JoystickController(JoystickController):
         '''
         from donkeycar.utils import detectPlatform
         try:
-            if detectPlatform() == 'tinkeredget':
-                self.js = PS4Joystick_evdev("/dev/input/event1")
+            if detectPlatform() == 'tpu':
+                self.js = PS4Joystick_evdev("/dev/input/event2")
             else:
                 self.js = PS4Joystick(self.dev_fn)
             if not self.js.init():

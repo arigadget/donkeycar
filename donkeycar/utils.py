@@ -427,7 +427,7 @@ def get_model_by_type(model_type, cfg):
     given the string model_type and the configuration settings in cfg
     create a Keras model and return it.
     '''
-    if detectPlatform() != 'tinkeredget':
+    if detectPlatform() != 'tpu':
         from donkeycar.parts.keras import KerasRNN_LSTM, KerasBehavioral, \
             KerasCategorical, KerasIMU, KerasLinear, Keras3D_CNN, \
             KerasLocalizer, KerasLatent
@@ -547,8 +547,8 @@ def detectPlatform():
             #print("Detected Raspberry Pi.")
             return "raspberry"
         if 'MX8MQ' in model_info:
-            #print("Detected Tinker Edge T.")
-            return "tinkeredget"
+            #print("Detected Coral dev board / Tinker Edge T.")
+            return "tpu"
         return "unknown"
     except:
         #print("Could not detect environment. Assuming generic Linux.")

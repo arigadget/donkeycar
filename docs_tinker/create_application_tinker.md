@@ -50,6 +50,9 @@ bluetoothctl command
 [bluetooth]# trust 90:89:xx:xx:xx:xx
 ```
 
-
 -------
+
+
+### myconfig.py
+AUTO_RECORD_ON_THROTTLE = False
 
