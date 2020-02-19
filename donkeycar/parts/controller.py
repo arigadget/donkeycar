@@ -1277,7 +1277,9 @@ class PS4JoystickController(JoystickController):
         from donkeycar.utils import detectPlatform
         try:
             if detectPlatform() == 'tpu':
-                self.js = PS4Joystick_evdev("/dev/input/event2")
+                # unsupport(joystick interface)
+                # self.js = PS4Joystick_evdev("/dev/input/event2")
+                self.js = PS4Joystick(self.dev_fn)
             else:
                 self.js = PS4Joystick(self.dev_fn)
             if not self.js.init():
