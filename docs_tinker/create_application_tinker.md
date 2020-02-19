@@ -42,13 +42,21 @@ This should show you a grid of addresses like:
 ### Joystick setup
 
 Install sysfsutils
+
   sudo apt-get install sysfsutils
+
 Edit the config to disable bluetooth ertm
+
   sudo nano /etc/sysfs.conf
+
 Append this to the end of the config
+
   /module/bluetooth/parameters/disable_ertm=1
+
 Reboot your machine.
+
   sudo reboot
+
 
 pairing PS4 controller
 
