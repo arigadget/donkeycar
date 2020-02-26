@@ -12,7 +12,7 @@ class BaseCamera:
 
 class CoralCameraGS(BaseCamera):
     '''
-    Coral Camera for Tinker Edge T 
+    Coral Camera for Tinker Edge T (5M Ominivision based camera) using gstreamer
     '''
     def run_pipeline(self):
         from gi.repository import GLib, GObject, Gst, GstBase
@@ -139,7 +139,7 @@ class CoralCameraGS(BaseCamera):
 
 class CoralCameraCV(BaseCamera):
     '''
-    Camera for Tinker Edge T(5M Ominivision based camera)
+    Camera for Tinker Edge T(5M Ominivision based camera) using opencv
     '''
     def __init__(self, image_w=160, image_h=120, image_d=3, framerate=30):
         self.w = image_w
@@ -151,7 +151,7 @@ class CoralCameraCV(BaseCamera):
         import cv2
         # initialize the camera and stream
         # /dev/input/video0,1
-        fn_video = 1
+        fn_video = 2
         self.camera = cv2.VideoCapture(fn_video)
 
         self.poll_camera()
