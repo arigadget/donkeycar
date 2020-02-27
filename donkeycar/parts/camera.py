@@ -150,8 +150,8 @@ class CoralCameraCV(BaseCamera):
     def init_camera(self):
         import cv2
         # initialize the camera and stream
-        # /dev/input/video0,1
-        fn_video = 2
+        # /dev/video0
+        fn_video = 0
         self.camera = cv2.VideoCapture(fn_video)
 
         self.poll_camera()
