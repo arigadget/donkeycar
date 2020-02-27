@@ -113,9 +113,9 @@ $ sudo ldconfig
 Link it to the virtual environment
 ```bash
 $ ls /usr/local/python/cv2/python-3.5
-cv2.cpython-35m-x86_64-linux-gnu.so
+cv2.cpython-35m-aarch64-linux-gnu.so
 $ cd /usr/local/python/cv2/python-3.5
-$ sudo mv cv2.cpython-35m-x86_64-linux-gnu.so cv2.so 
+$ sudo mv cv2.cpython-35m-aarch64-linux-gnu.so cv2.so 
 $cd ~/env/lib/python3.5/site-packages/
 $ ln -s /usr/local/python/cv2/python-3.5/cv2.so cv2.so
 ```
