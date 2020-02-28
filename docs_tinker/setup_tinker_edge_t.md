@@ -45,6 +45,7 @@ Get the donkeycar from Github.
 
 ```bash
 git clone https://github.com/arigadget/donkeycar
+git checkout -b tinkeredget
 cd donkeycar
 pip install -e .[tpu]
 ```
