@@ -233,3 +233,7 @@ RESET_ORIGIN_BTN = "triangle"       # joystick button to press to move car back 
 
 # Sensor from Arduino
 SERIAL_ARDUINO = False
+
+# Inference Traffic Sign using TPU
+TRAFFIC_SIGN_ENABLED = False
+

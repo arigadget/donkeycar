@@ -278,6 +278,15 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         serial_sensor = Serial_sense(dev='/dev/ttyUSB0', baudrate=115200)       
         V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
 
+    #Detect Traffic Sign
+    if cfg.TRAFFIC_SIGN_ENABLED:
+        from donkeycar.parts.detect_ts import DetectTS
+        detect_ts = DetectTS(model_path='models/road_signs_quantized_edgetpu.tflite',
+            label_path='models/traffic_sign_labels.txt')       
+        V.add(detect_ts, inputs=['cam/image_array', 'angle', 'throttle'], 
+            outputs=['angle', 'throttle'], threaded=True)
+
+
     class ImgPreProcess():
         '''
         preprocess camera image for inference.
