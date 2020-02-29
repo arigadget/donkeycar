@@ -57,7 +57,6 @@ setup(name='donkeycar',
                         'Adafruit_PCA9685',                        
                         ],
                     'tpu': [
-                        'evdev',
                         'Adafruit_PCA9685',                        
                         ],
                     'pc': [

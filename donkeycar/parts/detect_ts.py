@@ -16,9 +16,11 @@ class DetectTS():
     def __init__(self, model_path=None, label_path=None):
         from edgetpu.detection.engine import DetectionEngine
         # Initialize engine.
+        print('load traffic sign model')
         self.engine = DetectionEngine(model_path)
         self.labels = self.ReadLabelFile(label_path)
-
+        
+        self.on = True
         self.traffic_sign = None
 
     def inference_traffic_sign(self, image, angle, throttle):
@@ -39,7 +41,8 @@ class DetectTS():
         self.new_throttle = throttle
 
     def update(self, image, angle, throttle):
-        self.inference_traffic_sign(image, angle, throttle)
+        while self.on:
+            self.inference_traffic_sign(image, angle, throttle)
 
     def run(self, image, angle, throttle):
         self.inference_traffic_sign(image, angle, throttle)
@@ -49,4 +52,5 @@ class DetectTS():
         return self.new_angle, self.new_throttle
 
     def shutdown(self):
+        self.on = False
         print('Stopping inference')
