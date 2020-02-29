@@ -6,7 +6,6 @@ import struct
 import random
 from threading import Thread
 import logging
-import evdev
 
 from prettytable import PrettyTable
 
@@ -14,6 +13,7 @@ from prettytable import PrettyTable
 from donkeycar.parts.web_controller.web import LocalWebController
 
 class Joystick_evdev(object):
+    import evdev
     '''
     An interface to a physical joystick via /dev/input/eventx
     '''
