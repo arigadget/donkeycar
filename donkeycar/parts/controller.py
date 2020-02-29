@@ -12,135 +12,6 @@ from prettytable import PrettyTable
 #import for syntactical ease
 from donkeycar.parts.web_controller.web import LocalWebController
 
-class Joystick_evdev(object):
-    import evdev
-    '''
-    An interface to a physical joystick via /dev/input/eventx
-    '''
-    def __init__(self, dev_fn='/dev/input/event2'):
-        self.axis_states = {}
-        self.button_states = {}
-        self.axis_names = {}
-        self.button_names = {}
-        self.axis_map = []
-        self.button_map = []
-        self.jsdev = None
-        self.dev_fn = dev_fn
-
-
-    def init(self):
-        if not os.path.exists(self.dev_fn):
-            print(self.dev_fn, "is missing")
-            return False
-
-        '''
-        call once to setup connection to device and map buttons
-        '''
-        # Open the joystick device.
-        print('Opening %s...' % self.dev_fn)
-        self.jsdev = evdev.InputDevice(self.dev_fn)
-
-        # Get the device name.
-        self.js_name = self.jsdev.name
-        print('Device name: %s' % self.js_name)
-
-        # Get number of axes and buttons.
-        self.cap = self.jsdev.capabilities()
-        self.num_axes = len(self.cap[3])
-        self.num_buttons = len(self.cap[1])
-
-        # Get the axis map.
-        for axis in self.cap[3][:self.num_axes]:
-            axis_name = self.axis_names.get(axis[0], 'unknown(0x%02x)' % axis[0])
-            self.axis_map.append(axis_name)
-            self.axis_states[axis_name] = 0.0
-
-        # Get the button map.
-        for btn in self.cap[1][:self.num_buttons]:
-            btn_name = self.button_names.get(btn, 'unknown(0x%03x)' % btn)
-            self.button_map.append(btn_name)
-            self.button_states[btn_name] = 0
-            #print('btn', '0x%03x' % btn, 'name', btn_name)
-
-        #print(self.axis_map)
-        #print(self.button_map)
-        return True
-
-
-    def show_map(self):
-        '''
-        list the buttons and axis found on this joystick
-        '''
-        print ('%d axes found: %s' % (self.num_axes, ', '.join(self.axis_map)))
-        print ('%d buttons found: %s' % (self.num_buttons, ', '.join(self.button_map)))
-
-
-    def f_map_range(self, x, in_min, in_max, out_min, out_max):
-        in_range = float(in_max - in_min)
-        out_range = float(out_max - out_min)
-        y = (float(x) - float(in_min)) * out_range / in_range + float(out_min)
-        return y
-
-
-    def poll(self):
-        '''
-        query the state of the joystick, returns button which was pressed, if any,
-        and axis which was moved, if any. button_state will be None, 1, or 0 if no changes,
-        pressed, or released. axis_val will be a float from -1 to +1. button and axis will
-        be the string label determined by the axis map in init.
-        '''
-        button = None
-        button_state = None
-        axis = None
-        axis_val = None
-
-        if self.jsdev is None:
-            return button, button_state, axis, axis_val
-
-        # Main event loop
-        evbuf = self.jsdev.read_one()
-        #print(evbuf)
-
-        if evbuf:
-            typev  = evbuf.type
-            number = evbuf.code
-            value = evbuf.value
-
-            #if typev & 0x80:
-            #    #ignore initialization event
-            #    return button, button_state, axis, axis_val
-
-            if typev == 1:
-                #print("number:" , number, value)
-                n = self.cap[1].index(number)
-                button = self.button_map[n]
-                #print(value, typev, number, button, 'pressed')
-                if button:
-                    self.button_states[button] = value
-                    button_state = value
-                    logging.info("button: %s state: %d" % (button, value))
-
-            if typev == 3:
-                n = 0
-                while True:
-                    if self.cap[3][n][0] == number:
-                        break
-                    n = n + 1
-
-                axis = self.axis_map[n]
-
-                #print("axis: %s val: %d  n: %d" % (axis, value, n))
-                #time.sleep(3)
-                if axis:
-                    fvalue = self.f_map_range(value, 0, 255, -1.0, 1.0)
-                    self.axis_states[axis] = fvalue
-                    axis_val = fvalue
-                    #if n != 10:
-                    #    print("axis: %s val: %f" % (axis, fvalue))
-                    logging.debug("axis: %s val: %f" % (axis, fvalue))
-
-        return button, button_state, axis, axis_val
-
 class Joystick(object):
     '''
     An interface to a physical joystick
@@ -459,53 +330,6 @@ class PS3Joystick(Joystick):
            0x223 : 'dpad_right', #10 547
        }
 
-class PS4Joystick_evdev(Joystick_evdev):
-    '''
-    An interface to a physical PS4 joystick available at /dev/input/eventx
-    '''
-    def __init__(self, *args, **kwargs):
-        super(PS4Joystick_evdev, self).__init__(*args, **kwargs)
-
-        self.axis_names = {
-            0x00 : 'left_stick_horz',
-            0x01 : 'left_stick_vert',
-            0x02 : 'right_stick_horz',
-            0x05 : 'right_stick_vert',
-
-            0x03 : 'left_trigger_axis',
-            0x04 : 'right_trigger_axis',
-
-            0x10 : 'dpad_leftright',
-            0x11 : 'dpad_updown',
-
-            0x19 : 'tilt_a',
-            0x1a : 'tilt_b',
-            0x1b : 'tilt_c',
-
-            0x06 : 'motion_a',
-            0x07 : 'motion_b',
-            0x08 : 'motion_c',
-        }
-
-        self.button_names = {
-
-            0x130 : 'square',
-            0x131 : 'cross',
-            0x132 : 'circle',
-            0x133 : 'triangle',
-
-            0x134 : 'L1',
-            0x135 : 'R1',
-            0x136 : 'L2',
-            0x137 : 'R2',
-            0x13a : 'L3',
-            0x13b : 'R3',
-
-            0x13d : 'pad',
-            0x138 : 'share',
-            0x139 : 'options',
-            0x13c : 'PS',
-        }
 
 class PS4Joystick(Joystick):
     '''
@@ -1269,19 +1093,12 @@ class PS4JoystickController(JoystickController):
     def __init__(self, *args, **kwargs):
         super(PS4JoystickController, self).__init__(*args, **kwargs)
 
-
-    def init_js(self):
+   def init_js(self):
         '''
         attempt to init joystick
         '''
-        from donkeycar.utils import detectPlatform
         try:
-            if detectPlatform() == 'tpu':
-                # if mendel doesn't support joydev interface, change evdev interface
-                # self.js = PS4Joystick_evdev("/dev/input/event2")
-                self.js = PS4Joystick(self.dev_fn)
-            else:
-                self.js = PS4Joystick(self.dev_fn)
+            self.js = PS4Joystick(self.dev_fn)
             if not self.js.init():
                 self.js = None
         except FileNotFoundError:
