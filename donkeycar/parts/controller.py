@@ -1093,7 +1093,7 @@ class PS4JoystickController(JoystickController):
     def __init__(self, *args, **kwargs):
         super(PS4JoystickController, self).__init__(*args, **kwargs)
 
-   def init_js(self):
+    def init_js(self):
         '''
         attempt to init joystick
         '''
