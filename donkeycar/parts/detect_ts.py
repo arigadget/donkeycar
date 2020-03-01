@@ -22,6 +22,7 @@ class DetectTS():
         
         self.on = True
         self.traffic_sign = None
+        self.stop_sign = False
 
     def inference_traffic_sign(self, image, angle, throttle):
         import time
@@ -48,6 +49,7 @@ class DetectTS():
                     traffic_sign = self.labels[obj.label_id]
                     if traffic_sign == "stop" :
                         print("stop")
+                        self.stop_sign = True
                         self.new_throttle = 0.0
                     elif traffic_sign == "pause":
                         self.new_angle = 1.0
@@ -66,6 +68,8 @@ class DetectTS():
     def run_threaded(self, image, angle, throttle):
         self.new_angle = angle
         self.new_throttle = throttle
+        if self.stop_sign:
+            return self.new_angle, 0.0
         if image is not None:
             self.inference_traffic_sign(image, angle, throttle)
         return self.new_angle, self.new_throttle
