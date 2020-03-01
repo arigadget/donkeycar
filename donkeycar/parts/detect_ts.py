@@ -53,7 +53,10 @@ class DetectTS():
         self.run_threaded(image, angle, throttle)
 
     def run_threaded(self, image, angle, throttle):
-        self.inference_traffic_sign(image, angle, throttle)
+        self.angle = angle
+        self.throttle = throttle
+        if image != None
+            self.inference_traffic_sign(image, angle, throttle)
         return self.new_angle, self.new_throttle
 
     def shutdown(self):
