@@ -25,8 +25,13 @@ class DetectTS():
 
     def inference_traffic_sign(self, image, angle, throttle):
         # Run inference.
+        import time
+        start_time = time.perf_counter()
         ans = self.engine.DetectWithImage(image, threshold=0.05, keep_aspect_ratio=True,
                                           relative_coord=False, top_k=3)
+        end_time =  time.perf_counter()
+        print('Inference time:{:.7}'.format(end_time - start_time))
+
         # Display result.
         if ans:
             for obj in ans:
@@ -40,9 +45,9 @@ class DetectTS():
         self.new_angle = angle
         self.new_throttle = throttle
 
-    #def update(self):
-    #    while self.on:
-    #        self.inference_traffic_sign(image, angle, throttle)
+    def update(self):
+        while self.on:
+            pass
 
     def run(self, image, angle, throttle):
         self.run_threaded(image, angle, throttle)

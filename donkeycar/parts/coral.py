@@ -91,9 +91,9 @@ class CoralLinearPilot(object):
       self.engine = InferenceEngine(model_path)
 
   def run(self, image):
-      import time
-      start_time = time.perf_counter()
+      #import time
+      #start_time = time.perf_counter()
       steering, throttle = self.engine.Inference(image)[0]
-      end_time =  time.perf_counter()
-      print('Inference time:{:.7}'.format(end_time - start_time))
+      #end_time =  time.perf_counter()
+      #print('Inference time:{:.7}'.format(end_time - start_time))
       return steering, throttle
