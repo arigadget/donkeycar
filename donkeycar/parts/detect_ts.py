@@ -40,15 +40,15 @@ class DetectTS():
         self.new_angle = angle
         self.new_throttle = throttle
 
-    def update(self):
-        while self.on:
-            self.inference_traffic_sign(image, angle, throttle)
+    #def update(self):
+    #    while self.on:
+    #        self.inference_traffic_sign(image, angle, throttle)
 
-    def run(self):
+    def run(self, image, angle, throttle):
+        self.run_threaded(image, angle, throttle)
+
+    def run_threaded(self, image, angle, throttle):
         self.inference_traffic_sign(image, angle, throttle)
-        return self.new_angle, self.new_throttle
-
-    def run_threaded(self):
         return self.new_angle, self.new_throttle
 
     def shutdown(self):
