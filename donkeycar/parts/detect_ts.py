@@ -30,7 +30,7 @@ class DetectTS():
 
         self.new_angle = angle
         self.new_throttle = throttle
-
+        print("B: ", throttle)
         # Run inference
         pilImg = Image.fromarray(numpy.uint8(image))
         start_time = time.perf_counter()
@@ -53,6 +53,8 @@ class DetectTS():
                         self.new_angle = 1.0
                     else:
                         self.new_throttle = throttle
+        print("A: ", self.new_throttle)
+
 
     def update(self):
         while self.on:
