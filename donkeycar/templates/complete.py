@@ -280,11 +280,10 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
 
     #Detect Traffic Sign
     if cfg.TRAFFIC_SIGN_ENABLED:
-        from donkeycar.parts.detect_ts import DetectTS
+        from donkeycar.parts.detect_traffic_sign import DetectTS
         detect_ts = DetectTS(model_path='models/road_signs_quantized_edgetpu.tflite',
             label_path='models/traffic_sign_labels.txt')       
-        V.add(detect_ts, inputs=['cam/image_array', 'angle', 'throttle'], 
-            outputs=['angle', 'throttle'], threaded=True)
+        V.add(detect_ts, outputs=['traffic_sign'], threaded=True)
 
 
     class ImgPreProcess():
