@@ -16,27 +16,19 @@ class DetectTS():
     def __init__(self, model_path=None, label_path=None):
         from edgetpu.detection.engine import DetectionEngine
         #Webcam
-        import pygame
-        import pygame.camera
+        import cv2
 
         self.image_w = 160
         self.image_h = 120
         self.image_d = 3
         self.framerate = 20
-        self.iCam = 1
 
-        resolution = (self.image_w, self.image_h)
-        pygame.init()
-        pygame.camera.init()
-        l = pygame.camera.list_cameras()
-        print('cameras', l)
-        self.cam = pygame.camera.Camera(l[iCam], resolution, "RGB")
-        self.resolution = resolution
-        self.cam.start()
-        self.frame = None
+        # initialize the camera and stream
+        # /dev/video0
+        fn_video = 1
+        self.camera = cv2.VideoCapture(fn_video)
 
-        print('WebcamVideoStream loaded.. .warming camera')
-
+        print('WebCamera loaded.. .warming camera')
         time.sleep(2)
 
         # Initialize engine.
@@ -72,24 +64,14 @@ class DetectTS():
                         print(self.traffic_sign)
 
     def update(self):
-        from datetime import datetime, timedelta
-        import pygame.image
         while self.on:
-            start = datetime.now()
+            self.ret, frame = self.camera.read()
+            frame = cv2.resize(frame, dsize=(320, 240))
+            self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            if self.cam.query_image():
-                snapshot = self.cam.get_image()
-                snapshot1 = pygame.transform.scale(snapshot, self.resolution)
-                self.frame = pygame.surfarray.pixels3d(pygame.transform.rotate(pygame.transform.flip(snapshot1, True, False), 90))
- 
-                if image is not None:
+            if self.frame is not None:
                     self.inference_traffic_sign(self.frame)
  
-            stop = datetime.now()
-            s = 1 / self.framerate - (stop - start).total_seconds()
-            if s > 0:
-                time.sleep(s)
-
         self.cam.stop()
 
     def run_threaded(self):
@@ -99,4 +81,4 @@ class DetectTS():
         self.on = False
         print('Stopping inference')
         time.sleep(.5)
-
+        del(self.camera)
