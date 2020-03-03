@@ -16,6 +16,7 @@ class DetectTS():
     def __init__(self, model_path=None, label_path=None):
         from edgetpu.detection.engine import DetectionEngine
         #Webcam
+        import time
         import cv2
 
         self.image_w = 160
@@ -59,20 +60,25 @@ class DetectTS():
                     #print(self.labels[obj.label_id],'   ',obj.score)
                     self.traffic_sign = self.labels[obj.label_id]
                     if self.traffic_sign == "stop" :
-                        print("stop")
+                        print("--- stop")
                     else:
                         print(self.traffic_sign)
 
     def update(self):
+        import cv2
         while self.on:
-            self.ret, frame = self.camera.read()
-            frame = cv2.resize(frame, dsize=(320, 240))
-            self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            if self.frame is not None:
-                    self.inference_traffic_sign(self.frame)
+            ret, frame = self.camera.read()
+            if ret == True: 
+                height, width, channels = frame.shape[:3]
+                print("width: " + str(width))
+                print("height: " + str(height))
+                print(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+                print(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                frame = cv2.resize(frame, dsize=(320, 240))
+                self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                self.inference_traffic_sign(self.frame)
  
-        self.cam.stop()
+        self.camera.stop()
 
     def run_threaded(self):
         return self.traffic_sign
