@@ -48,42 +48,42 @@ class DetectTS():
         # Run inference
         pilImg = Image.fromarray(numpy.uint8(image))
         start_time = time.perf_counter()
-        ans = self.engine.detect_with_image(pilImg, threshold=0.7, keep_aspect_ratio=True,
+        ans = self.engine.detect_with_image(pilImg, threshold=0.8, keep_aspect_ratio=True,
                                           relative_coord=False, top_k=1)
         end_time =  time.perf_counter()
         #print('Inference time:{:.7}'.format(end_time - start_time))
 
         # Display result.
+        self.traffic_sign = None
         if ans:
             for obj in ans:
                 if self.labels:
                     #print(self.labels[obj.label_id],'   ',obj.score)
                     self.traffic_sign = self.labels[obj.label_id]
-                    if self.traffic_sign == "stop" :
-                        print("--- stop")
-                    else:
-                        print(self.traffic_sign)
+                    print('detect: ', self.traffic_sign)
 
     def update(self):
         import cv2
         while self.on:
             ret, frame = self.camera.read()
             if ret == True: 
+                self.traffic_sign = None
                 height, width, channels = frame.shape[:3]
-                print("width: " + str(width))
-                print("height: " + str(height))
-                print(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-                print(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                #print("width: " + str(width))
+                #print("height: " + str(height))
                 frame = cv2.resize(frame, dsize=(320, 240))
                 self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 self.inference_traffic_sign(self.frame)
- 
-        self.camera.stop()
+            for i in range (5):
+                img = self.camera.read()   
+    
+        self.camera.release()
 
     def run_threaded(self):
         return self.traffic_sign
 
     def shutdown(self):
+        import time
         self.on = False
         print('Stopping inference')
         time.sleep(.5)

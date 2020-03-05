@@ -11,8 +11,11 @@ class ControllTS():
         self.new_angle = angle
         self.new_throttle = throttle
         # temporary changing for debugging
-        if mode == "local":
+        if mode == "user:
             print('*** ', traffic_sign)
+            if traffic_sign == 'stop':
+                self.new_throttle = 0.0
+        self.new_traffic_sign = None
 
-        return new_angle, new_throttle
+        return self.new_angle, self.new_throttle, self.new_traffic_sign
 
