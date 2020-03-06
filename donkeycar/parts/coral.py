@@ -97,3 +97,4 @@ class CoralLinearPilot(object):
       # end_time =  time.perf_counter()
       # print('Inference time:{:.7}'.format(end_time - start_time))
       return steering, throttle
+      
