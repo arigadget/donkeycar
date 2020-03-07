@@ -22,6 +22,7 @@ class DetectTS():
         self.image_h = 480
         self.image_d = 3
         self.cam = CoralCameraGS(image_w=self.image_w, image_h=self.image_h, image_d=self.image_d)
+        self.cam.run_pipeline()
         print('Coral Camera loaded.. .warming camera')
 
         # Initialize engine.
@@ -51,12 +52,15 @@ class DetectTS():
 
         # Set result.
         if ans:
-            for obj in ans:
-                if self.labels:
-                    #print(self.labels[obj.label_id],'   ',obj.score)
-                    self.traffic_sign = self.labels[obj.label_id]
-                    print('detect: ', self.traffic_sign)
-            print('        ', self.labels[ans[0].label_id])        
+            #for obj in ans:
+            #    if self.labels:
+            #        #print(self.labels[obj.label_id],'   ',obj.score)
+            #        self.traffic_sign = self.labels[obj.label_id]
+            #        print('detect: ', self.traffic_sign)
+            self.traffic_sign = self.labels[ans[0].label_id]
+            print('detect: ', self.traffic_sign,'  {:.2}'.format(ans[0].score),
+                '   {:.2}'.format(end_time - start_time))
+
 
     def update(self):
         while self.on:

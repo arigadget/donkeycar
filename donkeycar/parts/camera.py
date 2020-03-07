@@ -134,8 +134,7 @@ class CoralCameraGS(BaseCamera):
         #while GLib.MainContext.default().iteration(False):
         #    pass
         time.sleep(.5)
-        del(self.camera)
-
+ 
 
 class CoralCameraCV(BaseCamera):
     '''
