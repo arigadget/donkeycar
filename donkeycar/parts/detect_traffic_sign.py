@@ -15,26 +15,21 @@ class DetectTS():
 
     def __init__(self, model_path=None, label_path=None):
         from edgetpu.detection.engine import DetectionEngine
-        #Webcam
         import time
-        import cv2
-
-        self.image_w = 160
-        self.image_h = 120
+        from donkeycar.parts.camera import CoralCameraGS
+        # coral camera
+        self.image_w = 640
+        self.image_h = 480
         self.image_d = 3
-        self.framerate = 20
-
-        # initialize the camera and stream
-        # /dev/video0
-        fn_video = 1
-        self.camera = cv2.VideoCapture(fn_video)
-
-        print('WebCamera loaded.. .warming camera')
-        time.sleep(2)
+        self.cam = CoralCameraGS(image_w=self.image_w, image_h=self.image_h, image_d=self.image_d)
+        print('Coral Camera loaded.. .warming camera')
 
         # Initialize engine.
-        #print('load traffic sign model')
-        self.engine = DetectionEngine(model_path)
+        print('load traffic sign model')
+        from edgetpu.basic import edgetpu_utils
+        edge_tpus = edgetpu_utils.ListEdgeTpuPaths(edgetpu_utils.EDGE_TPU_STATE_NONE)
+        print(edge_tpus[0])
+        self.engine = DetectionEngine(model_path, edge_tpus[0])
         self.labels = self.ReadLabelFile(label_path)
         
         self.on = True
@@ -45,39 +40,30 @@ class DetectTS():
         import numpy
         from PIL import Image
 
+        self.traffic_sign = None
         # Run inference
         pilImg = Image.fromarray(numpy.uint8(image))
         start_time = time.perf_counter()
         ans = self.engine.detect_with_image(pilImg, threshold=0.8, keep_aspect_ratio=True,
                                           relative_coord=False, top_k=1)
         end_time =  time.perf_counter()
-        #print('Inference time:{:.7}'.format(end_time - start_time))
+        print('TS: Inference time:{:.7}'.format(end_time - start_time))
 
-        # Display result.
-        self.traffic_sign = None
+        # Set result.
         if ans:
             for obj in ans:
                 if self.labels:
                     #print(self.labels[obj.label_id],'   ',obj.score)
                     self.traffic_sign = self.labels[obj.label_id]
                     print('detect: ', self.traffic_sign)
+            print('        ', self.labels[obj[0].label_id])        
 
     def update(self):
-        import cv2
         while self.on:
-            ret, frame = self.camera.read()
-            if ret == True: 
-                self.traffic_sign = None
-                height, width, channels = frame.shape[:3]
-                #print("width: " + str(width))
-                #print("height: " + str(height))
-                frame = cv2.resize(frame, dsize=(320, 240))
-                self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                self.inference_traffic_sign(self.frame)
-            for i in range (5):
-                img = self.camera.read()   
+            self.frame = self.cam.poll_camera()
+            self.inference_traffic_sign(self.frame)
     
-        self.camera.release()
+        self.cam.shutdown()
 
     def run_threaded(self):
         return self.traffic_sign
@@ -85,6 +71,6 @@ class DetectTS():
     def shutdown(self):
         import time
         self.on = False
-        print('Stopping inference')
+        print('Stopping inference of traffic sign')
         time.sleep(.5)
-        del(self.camera)
+        #del(self.camera)
