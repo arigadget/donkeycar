@@ -56,7 +56,7 @@ class DetectTS():
                     #print(self.labels[obj.label_id],'   ',obj.score)
                     self.traffic_sign = self.labels[obj.label_id]
                     print('detect: ', self.traffic_sign)
-            print('        ', self.labels[obj[0].label_id])        
+            print('        ', self.labels[ans[0].label_id])        
 
     def update(self):
         while self.on:
