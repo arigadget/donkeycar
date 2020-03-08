@@ -110,11 +110,11 @@ class CoralCameraGS(BaseCamera):
 
         buf = sample.get_buffer()
         result, mapinfo = buf.map(Gst.MapFlags.READ)
-        #print('mapinfo', mapinfo)
         if result:
             caps = sample.get_caps()
             width = caps.get_structure(0).get_value('width')
             height = caps.get_structure(0).get_value('height')
+            print(width, ' : ', height, '-->', self.w, ' : ', self.h)
             img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
             self.frame = img.resize((self.w, self.h))
         buf.unmap(mapinfo)
@@ -166,11 +166,6 @@ class CoralCameraCV(BaseCamera):
     def poll_camera(self):
         import cv2
 
-        #while True:
-        #    self.ret , frame = self.camera.read()
-        #    print("return: ", self.ret)
-        #    if self.ret == True:
-        #       break
         self.ret, frame = self.camera.read()
         frame = cv2.resize(frame, dsize=(160, 120))
         self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -182,7 +177,6 @@ class CoralCameraCV(BaseCamera):
     def shutdown(self):
         self.running = False
         time.sleep(.5)
-        del(self.camera)
 
 
 class PiCamera(BaseCamera):

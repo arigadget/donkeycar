@@ -90,10 +90,11 @@ class CoralLinearPilot(object):
       # Load Coral edgetpu TFLite model and allocate tensors.
       #self.engine = InferenceEngine(model_path)
       # Engine assigned to Coral USB Acceralator
+      self.tpu_no=1
       from edgetpu.basic import edgetpu_utils
       edge_tpus = edgetpu_utils.ListEdgeTpuPaths(edgetpu_utils.EDGE_TPU_STATE_NONE)
-      print(edge_tpus[1])
-      self.engine = InferenceEngine(model_path, edge_tpus[1])
+      print(edge_tpus[self.tpu_no])
+      self.engine = InferenceEngine(model_path, edge_tpus[self.tpu_no])
 
   def run(self, image):
       import time

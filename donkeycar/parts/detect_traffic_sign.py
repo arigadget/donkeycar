@@ -13,7 +13,7 @@ class DetectTS():
             ret[int(pair[0])] = pair[1].strip()
         return ret
 
-    def __init__(self, model_path=None, label_path=None):
+    def __init__(self, model_path=None, label_path=None, tpu_no=0):
         from edgetpu.detection.engine import DetectionEngine
         import time
         from donkeycar.parts.camera import CoralCameraGS
@@ -29,8 +29,8 @@ class DetectTS():
         print('load traffic sign model')
         from edgetpu.basic import edgetpu_utils
         edge_tpus = edgetpu_utils.ListEdgeTpuPaths(edgetpu_utils.EDGE_TPU_STATE_NONE)
-        print(edge_tpus[0])
-        self.engine = DetectionEngine(model_path, edge_tpus[0])
+        print(edge_tpus[tpu_no])
+        self.engine = DetectionEngine(model_path, edge_tpus[tpu_no])
         self.labels = self.ReadLabelFile(label_path)
         
         self.on = True
@@ -48,7 +48,7 @@ class DetectTS():
         ans = self.engine.detect_with_image(pilImg, threshold=0.8, keep_aspect_ratio=True,
                                           relative_coord=False, top_k=1)
         end_time =  time.perf_counter()
-        print('TS: Inference time:{:.7}'.format(end_time - start_time))
+        #print('TS: Inference time:{:.7}'.format(end_time - start_time))
 
         # Set result.
         if ans:

@@ -279,10 +279,11 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         V.add(serial_sensor, outputs=['serial_sensor/status'], threaded=True)
 
     #Detect Traffic Sign
-    if cfg.h:
+    if cfg.TRAFFIC_SIGN_ENABLED:
         from donkeycar.parts.detect_traffic_sign import DetectTS
         detect_ts = DetectTS(model_path='models/road_signs_quantized_edgetpu.tflite',
-            label_path='models/traffic_sign_labels.txt')
+            label_path='models/traffic_sign_labels.txt',
+            tpu_no=0)
         V.add(detect_ts, outputs=['traffic_sign'], threaded=True)
 
 
