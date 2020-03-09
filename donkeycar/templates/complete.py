@@ -280,8 +280,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
 
     #Detect Traffic Sign
     if cfg.TRAFFIC_SIGN_ENABLED:
-        from donkeycar.parts.detect_traffic_sign import DetectTS
-        detect_ts = DetectTS(model_path='models/road_signs_quantized_edgetpu.tflite',
+        from donkeycar.parts.detect_traffic_sign import Detect_traffic_sign
+        detect_ts = Detect_traffic_sign(model_path='models/road_signs_quantized_edgetpu.tflite',
             label_path='models/traffic_sign_labels.txt',
             tpu_no=0)
         V.add(detect_ts, outputs=['traffic_sign'], threaded=True)
@@ -471,8 +471,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
 
     #Controll angle/throttle according to Traffic Sign
     if cfg.TRAFFIC_SIGN_ENABLED:
-        from donkeycar.parts.control_traffic_sign import ControllTS
-        controller_ts = ControllTS()       
+        from donkeycar.parts.control_traffic_sign import Control_traffic_sign
+        controller_ts = Control_traffic_sign()       
         V.add(controller_ts, 
               inputs=['user/mode', 'angle', 'throttle', 'traffic_sign'],
               outputs=['angle', 'throttle', 'traffic_sign'])

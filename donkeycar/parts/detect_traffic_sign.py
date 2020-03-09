@@ -2,7 +2,7 @@
 detect_traffic_sign.py
 Classes to detect traffic sign using tpu.
 """
-class DetectTS():
+class Detect_traffic_sign():
     # Function to read labels from text files.
     def ReadLabelFile(self, file_path):
         with open(file_path, 'r', encoding="utf-8") as f:
@@ -18,11 +18,11 @@ class DetectTS():
         import time
         from donkeycar.parts.camera import CoralCameraGS
         # coral camera
-        self.image_w = 640
-        self.image_h = 480
+        self.image_w = 1920
+        self.image_h = 1080
         self.image_d = 3
         self.cam = CoralCameraGS(image_w=self.image_w, image_h=self.image_h, image_d=self.image_d)
-        self.cam.run_pipeline()
+        self.cam.run_pipeline(src_w=self.image_w, src_h=self.image_h)
         print('Coral Camera loaded.. .warming camera')
 
         # Initialize engine.

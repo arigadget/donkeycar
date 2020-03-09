@@ -14,16 +14,16 @@ class CoralCameraGS(BaseCamera):
     '''
     Coral Camera for Tinker Edge T (5M Ominivision based camera) using gstreamer
     '''
-    def run_pipeline(self):
+    def run_pipeline(self, src_w=640, src_h=480):
         from gi.repository import GLib, GObject, Gst, GstBase
 
-        SRC_WIDTH = 640
-        SRC_HEIGHT = 480
+        SRC_WIDTH = src_w
+        SRC_HEIGHT = src_h
         SRC_RATE = '30/1'
         SRC_ELEMENT = 'v4l2src'
 
-        SINK_WIDTH = 640
-        SINK_HEIGHT = 480
+        SINK_WIDTH = src_w
+        SINK_HEIGHT = src_h
         SINK_ELEMENT = ('appsink name=appsink sync=false emit-signals=true '
                         'max-buffers=1 drop=true')
         SCREEN_SINK = 'glimagesink sync=false'
@@ -93,7 +93,8 @@ class CoralCameraGS(BaseCamera):
 
     def init_camera(self):
         # initialize the camera and stream
-        self.run_pipeline()
+        # Minimum capture size: 640x480
+        self.run_pipeline(src_w=640, src_h=480)
         self.poll_camera()
         print('Coral Camera loaded.. .warming camera')
  
