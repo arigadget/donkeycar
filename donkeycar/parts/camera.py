@@ -115,7 +115,7 @@ class CoralCameraGS(BaseCamera):
             caps = sample.get_caps()
             width = caps.get_structure(0).get_value('width')
             height = caps.get_structure(0).get_value('height')
-            print(width, ' : ', height, '-->', self.w, ' : ', self.h)
+            #print(width, ' : ', height, '-->', self.w, ' : ', self.h)
             img = Image.frombytes('RGB', (width, height), mapinfo.data, 'raw')
             self.frame = img.resize((self.w, self.h))
         buf.unmap(mapinfo)

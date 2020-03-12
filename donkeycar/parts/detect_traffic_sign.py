@@ -75,6 +75,6 @@ class Detect_traffic_sign():
     def shutdown(self):
         import time
         self.on = False
+        time.sleep(0.5)
         print('Stopping inference of traffic sign')
-        time.sleep(.5)
         #del(self.camera)
