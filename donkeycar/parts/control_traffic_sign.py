@@ -18,7 +18,7 @@ class Control_traffic_sign():
 
         if self.ignore_timer:
             print('ignore time')
-            if(time.perf.perf_counter - self.timer_ignore > 5.0):
+            if(time.perf_counter() - self.timer_ignore > 5.0):
                 self.ignore_timer = False
             else:
                 return self.new_angle, self.new_throttle, None
