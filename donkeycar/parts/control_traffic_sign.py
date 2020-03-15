@@ -10,6 +10,8 @@ class Control_traffic_sign():
         self.pause_sign = False
         self.timer = False
         self.ignore_timer = False
+        self.left_counter = 0
+        self.right_counter = 0
 
     def run(self, mode, angle, throttle, traffic_sign):
         import time
@@ -18,20 +20,22 @@ class Control_traffic_sign():
 
         if self.ignore_timer:
             print('ignore time')
-            if(time.perf_counter() - self.timer_ignore > 5.0):
+            if(time.perf_counter() - self.timer_ignore > 1.0):
                 self.ignore_timer = False
             else:
                 return self.new_angle, self.new_throttle, None
+
         if self.stop_sign:
             if self.timer:
                 self.end_time = time.perf_counter()
-                if self.end_time - self.start_time > 3.0:
+                if self.end_time - self.start_time > 10.0:
                     print('stop timeout')
                     self.stop_sign = False
                     self.timer = False
                     return self.new_angle, self.new_throttle, None
                 else:
                     return self.new_angle, 0.0, 'stop'
+
         if self.pause_sign:
             if self.timer:
                 self.end_time = time.perf_counter()
@@ -44,6 +48,15 @@ class Control_traffic_sign():
                     return self.new_angle, self.new_throttle, None
                 else:
                     return self.new_angle, 0.0, 'pause'
+
+        if self.left_counter != 0:
+            self.left_counter = self.left_counter - 1
+            return -0.5, self.new_throttle, 'left'
+
+        if self.right_counter != 0:
+            self.right_counter = self.right_counter - 1
+            return 0.5, self.new_throttle, 'right'
+
 
         # temporary changing for debugging
         if mode == "user":
@@ -62,8 +75,10 @@ class Control_traffic_sign():
                 self.new_throttle = 0.0
             elif traffic_sign == 'left':
                 self.new_angle = -0.5
+                self.left_counter = 10
             elif traffic_sign == 'right':
                 self.new_angle = 0.5
+                self.right_counter = 10
 
         print(traffic_sign, ' [', self.new_angle, ', ', self.new_throttle,']')
         self.new_traffic_sign = None
