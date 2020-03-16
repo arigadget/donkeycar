@@ -48,8 +48,6 @@ class Detect_traffic_sign():
         ans = self.engine.detect_with_image(pilImg, threshold=0.8, keep_aspect_ratio=True,
                                           relative_coord=False, top_k=1)
         end_time =  time.perf_counter()
-        #print('TS: Inference time:{:.7}'.format(end_time - start_time))
-
         # Set result.
         if ans:
             #for obj in ans:
@@ -60,7 +58,11 @@ class Detect_traffic_sign():
             self.traffic_sign = self.labels[ans[0].label_id]
             print('detect: ', self.traffic_sign,'  {:.2}'.format(ans[0].score),
                 '   {:.2}'.format(end_time - start_time))
-
+            print(ans[0].x1, ans[0].y1, ' - ', ans[0].x2, ans[0].y2)
+            if self.traffic_sign == 'stop':
+                left = (pilImg.width / 2) - ans[0].x1
+                right = ans[0].x2 - (pilImg.width / 2)
+                print(pilImg.width, '   ', left, ' : ', right)
 
     def update(self):
         while self.on:
