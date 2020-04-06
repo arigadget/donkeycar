@@ -236,4 +236,6 @@ SERIAL_ARDUINO = False
 
 # Inference Traffic Sign using TPU
 TRAFFIC_SIGN_ENABLED = False
+TRAFFIC_SIGN_MODEL = 'road_signs_quantized_edgetpu.tflite'
+TRAFFIC_SIGN_LABEL = 'traffic_sign_labels.txt'
 
