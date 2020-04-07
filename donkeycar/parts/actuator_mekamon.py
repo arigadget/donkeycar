@@ -6,22 +6,7 @@ from cobs import cobs
 
 from gattlib import GATTRequester, GATTResponse
 
-g_angle = 0
-
-class MekamonSteering:
-    def __init__(self):
-        global g_angle
-        print("init mekamon steering")
-        g_angle = 0
-
-    def run(self, angle):
-        global g_angle
-        g_angle = angle
-
-    def shutdown(self):
-        self.run(0) # stop
-
-class MekamonThrottle:
+class MekamonController:
     def calc_checksum(self, cmd):
         #ints = [ord(char) for char in cmd]
         ints = [int(char) for char in cmd]
@@ -92,20 +77,24 @@ class MekamonThrottle:
         print("OK!")
         time.sleep(0.5)
 
-    def run(self, throttle):
-        global g_angle
+    def run(self, angle, throttle):
 
         if throttle > 1 or throttle < -1:
             raise ValueError( "throttle must be between 1(forward) and -1(reverse)")
-        if g_angle > 1 or g_angle < -1:
+        if angle > 1 or angle < -1:
             raise ValueError( "angle must be between 1(right) and -1(left)")
 
         # -128 =< value =< 127
-        fwd = dk.utils.map_range(throttle, -1.0, 1.0, -128, 127) + 1
-        turn = dk.utils.map_range(g_angle,  -1.0, 1.0, -128, 127) + 1
+        if throttle >= 0:
+            fwd = dk.utils.map_range(throttle, 0, 1.0, 0, 127)
+        elif:
+            fwd = dk.utils.map_range(throttle, -1.0, 0, -128, 0)
+        if angle >= 0:
+            turn = dk.utils.map_range(angle, 0, 1.0, 0, 127)
+        elif:
+            turn = dk.utils.map_range(angle, -1.0, 0, -128, 0)
         strafe = 0
-        if fwd == 128:
-            fwd = 127
+    
         if fwd == 0:
             turn = 0
         print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
@@ -118,6 +107,4 @@ class MekamonThrottle:
         time.sleep(0.1)            
 
     def shutdown(self):
-        self.run(0) #stop vehicle
-
-
+        self.run(0, 0) #stop vehicle

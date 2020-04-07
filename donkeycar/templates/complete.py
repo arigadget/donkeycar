@@ -541,13 +541,10 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         V.add(motor, inputs=["throttle"])
 
     elif cfg.DRIVE_TRAIN_TYPE == "MEKAMON":
-        from donkeycar.parts.actuator_mekamon import MekamonSteering, MekamonThrottle
+        from donkeycar.parts.actuator_mekamon import MekamonController
 
-        steering = MekamonSteering()
-        throttle = MekamonThrottle()
-
-        V.add(steering, inputs=['angle'], threaded=True)
-        V.add(throttle, inputs=['throttle'], threaded=True)
+        mmcontroller = MekamonController()
+        V.add(mmcontroller, inputs=['angle', 'throttle'])
     
     #add tub to save data
 
