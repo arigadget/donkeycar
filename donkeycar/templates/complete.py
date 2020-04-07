@@ -546,8 +546,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         steering = MekamonSteering()
         throttle = MekamonThrottle()
 
-        V.add(steering, inputs=['angle'])
-        V.add(throttle, inputs=['throttle'])
+        V.add(steering, inputs=['angle'], threaded=True)
+        V.add(throttle, inputs=['throttle'], threaded=True)
     
     #add tub to save data
 

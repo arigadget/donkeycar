@@ -11,6 +11,7 @@ g_angle = 0
 class MekamonSteering:
     def __init__(self):
         global g_angle
+        print("init mekamon steering")
         g_angle = 0
 
     def run(self, angle):
@@ -108,7 +109,7 @@ class MekamonThrottle:
         print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
 
         msgOut = self.mm_command([6, 3, fwd, turn, strafe]) # 6=motion
-        print("Sending: ", msgOut)
+        #print("Sending: ", msgOut)
 
         msgOut = binascii.unhexlify(msgOut)
         self.requester.write_cmd(0x000e, msgOut)
