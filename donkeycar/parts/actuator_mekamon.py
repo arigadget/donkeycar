@@ -104,6 +104,8 @@ class MekamonThrottle:
         fwd = dk.utils.map_range(throttle, -1.0, 1.0, -128, 127) + 1
         turn = dk.utils.map_range(g_angle,  -1.0, 1.0, -128, 127) + 1
         strafe = 0
+        if fwd == 128:
+            fwd = 127
         if fwd == 0:
             turn = 0
         print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
