@@ -23,11 +23,11 @@ class MekamonController:
     def mm_command(self, intSeq):
         #print('intSeq:', intSeq)
         # build the command, append vars in hex string '\xff' format
-        cmd = ''
+        cmd = b""
         for x in intSeq:
-            cmd += pack('b',x).decode() # b means treat as signed +- 128
+            cmd += pack('b',x)      # b means treat as signed +- 128
         # COBS before the checksum and terminal byte
-        cmd = cmd.encode('utf-8')
+        #cmd = cmd.encode('utf-8')
         cmd = cobs.encode(cmd)
         #print ('cobs encode: ', cmd)
         # checksum
@@ -67,6 +67,8 @@ class MekamonController:
         # activate notification 
         self.requester.write_by_handle(0x000c, bytes([1, 0]))
         self.ready_for_mekamon()
+        self.angle = 0
+        self.throttle = 0
 
     def connect(self):
         self.requester = GATTRequester("F7:9B:A8:A6:26:5F", False)
@@ -79,24 +81,29 @@ class MekamonController:
 
     def run(self, angle, throttle):
 
-        if throttle > 1 or throttle < -1:
+        self.angle = angle
+        if self.angle == None:
+            self.angle = 0
+        self.throttle = throttle
+
+        if self.throttle > 1 or self.throttle < -1:
             raise ValueError( "throttle must be between 1(forward) and -1(reverse)")
-        if angle > 1 or angle < -1:
+        if self.angle > 1 or self.angle < -1:
             raise ValueError( "angle must be between 1(right) and -1(left)")
 
         # -128 =< value =< 127
-        if throttle >= 0:
-            fwd = dk.utils.map_range(throttle, 0, 1.0, 0, 127)
-        elif:
-            fwd = dk.utils.map_range(throttle, -1.0, 0, -128, 0)
-        if angle >= 0:
-            turn = dk.utils.map_range(angle, 0, 1.0, 0, 127)
-        elif:
-            turn = dk.utils.map_range(angle, -1.0, 0, -128, 0)
+        if self.throttle >= 0:
+            fwd = dk.utils.map_range(self.throttle, 0, 1.0, 0, 127)
+        else:
+            fwd = dk.utils.map_range(self.throttle, -1.0, 0, -128, 0)
+        if self.angle >= 0:
+            turn = dk.utils.map_range(self.angle, 0, 1.0, 0, 127)
+        else:
+            turn = dk.utils.map_range(self.angle, -1.0, 0, -128, 0)
         strafe = 0
     
-        if fwd == 0:
-            turn = 0
+        #if fwd == 0:
+        #    turn = 0
         print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
 
         msgOut = self.mm_command([6, 3, fwd, turn, strafe]) # 6=motion
