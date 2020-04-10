@@ -544,7 +544,7 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
         from donkeycar.parts.actuator_mekamon import MekamonController
 
         mmcontroller = MekamonController()
-        V.add(mmcontroller, inputs=['angle', 'throttle'])
+        V.add(mmcontroller, inputs=['angle', 'throttle'], threaded=True)
     
     #add tub to save data
 

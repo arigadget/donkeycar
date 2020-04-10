@@ -88,8 +88,9 @@ class MekamonController:
         # activate notification 
         self.requester.write_by_handle(0x000c, bytes([1, 0]))
         self.ready_for_mekamon()
-        self.angle = 0
-        self.throttle = 0
+        self.fwd = 0
+        self.turn = 0
+        self.running = True
 
     def connect(self):
         self.requester = GATTRequester("F7:9B:A8:A6:26:5F", False)
@@ -100,8 +101,21 @@ class MekamonController:
         print("OK!")
         time.sleep(0.5)
 
-    def run(self, angle, throttle):
+    def mm_controller(self, fwd, turn):
+        strafe = 0
+        print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
 
+        msgOut = self.mm_command([6, 3, fwd, turn, strafe]) # 6=motion
+        #print("Sending: ", msgOut)
+        msgOut = binascii.unhexlify(msgOut)
+        self.requester.write_cmd(0x000e, msgOut)
+        #time.sleep(0.1)            
+
+    def update(self):
+        while self.running:
+            self.mm_controller(self.fwd, self.turn)
+
+    def run_threaded(self, angle, throttle):
         self.angle = angle
         if self.angle == None:
             self.angle = 0
@@ -114,27 +128,22 @@ class MekamonController:
 
         # -128 =< value =< 127
         if self.throttle >= 0:
-            fwd = dk.utils.map_range(self.throttle, 0, 1.0, 0, 127)
+            self.fwd = dk.utils.map_range(self.throttle, 0, 1.0, 0, 127)
         else:
-            fwd = dk.utils.map_range(self.throttle, -1.0, 0, -128, 0)
+            self.fwd = dk.utils.map_range(self.throttle, -1.0, 0, -128, 0)
         if self.angle >= 0:
-            turn = dk.utils.map_range(self.angle, 0, 1.0, 0, 127)
+            self.turn = dk.utils.map_range(self.angle, 0, 1.0, 0, 127)
         else:
-            turn = dk.utils.map_range(self.angle, -1.0, 0, -128, 0)
-        strafe = 0
-    
-        #if fwd == 0:
-        #    turn = 0
-        print ('fwd: %d turn: %d strafe: %d' % (fwd, turn, strafe))
+            self.turn = dk.utils.map_range(self.angle, -1.0, 0, -128, 0)
 
-        msgOut = self.mm_command([6, 3, fwd, turn, strafe]) # 6=motion
-        #print("Sending: ", msgOut)
-
-        msgOut = binascii.unhexlify(msgOut)
-        self.requester.write_cmd(0x000e, msgOut)
-        #time.sleep(0.1)            
+    def run(self, angle, throttle):
+        self.run_threaded(angle, throttle)
+        self.mm_controller(self.fwd, self.turn)
 
     def shutdown(self):
         self.run(0, 0) #stop vehicle
-        self.requester.disconnect()
-        
+        self.running = False
+        #self.requester.disconnect()
+            
+
+
