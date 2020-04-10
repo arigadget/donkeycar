@@ -41,7 +41,28 @@ class MekamonController:
         cmd = binascii.hexlify(cmd)
         return cmd
 
+    def send_cmd(self, envelop, times, interval):
+        msgOut = self.mm_command(envelop)
+        sendOut = binascii.unhexlify(msgOut)
+        print("Sending: ", msgOut)
+        for i in range(times):
+            self.requester.write_cmd(0x000e, sendOut)
+            time.sleep(interval)
+
     def ready_for_mekamon(self):
+        # 0210
+        self.send_cmd([16], 20, 0.5)
+        #
+        self.send_cmd([13, 45, 110, 75, 55, 70, 90, 2, 36, 0, 0], 1, 0) 
+        # 03070101
+        self.send_cmd([7, 1, 0], 2, 0.5) 
+        #
+        self.send_cmd([60, 0, 100], 1, 0)
+        self.send_cmd([6, 0, 0, 0], 1, 0)
+
+        print("ready for mekamon")
+    
+    def ready_for_mekamon2(self):
         init1 = [16] # 02101300
         msgOut = self.mm_command(init1)
         sendOut = binascii.unhexlify(msgOut)
