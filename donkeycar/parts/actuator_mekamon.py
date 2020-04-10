@@ -53,11 +53,11 @@ class MekamonController:
         # 0210
         self.send_cmd([16], 20, 0.5)
         #
-        self.send_cmd([13, 45, 110, 75, 55, 70, 90, 2, 36, 0, 0], 1, 0) 
+        #self.send_cmd([13, 45, 110, 75, 55, 70, 90, 2, 36, 0, 0], 1, 0) 
         # 03070101
         self.send_cmd([7, 1, 0], 2, 0.5) 
         #
-        self.send_cmd([60, 0, 100], 1, 0)
+        #self.send_cmd([60, 0, 100], 1, 0)
         self.send_cmd([6, 0, 0, 0], 1, 0)
 
         print("ready for mekamon")
@@ -132,7 +132,9 @@ class MekamonController:
 
         msgOut = binascii.unhexlify(msgOut)
         self.requester.write_cmd(0x000e, msgOut)
-        time.sleep(0.1)            
+        #time.sleep(0.1)            
 
     def shutdown(self):
         self.run(0, 0) #stop vehicle
+        self.requester.disconnect()
+        
