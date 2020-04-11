@@ -109,7 +109,7 @@ class MekamonController:
         #print("Sending: ", msgOut)
         msgOut = binascii.unhexlify(msgOut)
         self.requester.write_cmd(0x000e, msgOut)
-        #time.sleep(0.1)            
+        time.sleep(0.15)            
 
     def update(self):
         while self.running:
