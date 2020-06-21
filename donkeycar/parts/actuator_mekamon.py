@@ -59,26 +59,7 @@ class MekamonController:
         #
         #self.send_cmd([60, 0, 100], 1, 0)
         self.send_cmd([6, 0, 0, 0], 1, 0)
-
-        print("ready for mekamon")
-    
-    def ready_for_mekamon2(self):
-        init1 = [16] # 02101300
-        msgOut = self.mm_command(init1)
-        sendOut = binascii.unhexlify(msgOut)
-        print("Sending: ", msgOut)
-        for i in range(20):
-            self.requester.write_cmd(0x000e, sendOut)
-            time.sleep(0.5)
-
-        init2 = [7, 1, 0] # 03070101
-        msgOut = self.mm_command(init2)
-        sendOut = binascii.unhexlify(msgOut)
-        print("Sending: ", msgOut)
-        for i in range(2):
-            self.requester.write_cmd(0x000e, sendOut)
-            time.sleep(0.5)
-
+        self.send_cmd([4, 0, 7, 50], 1, 0)
         print("ready for mekamon")
     
     def __init__(self):
@@ -91,12 +72,15 @@ class MekamonController:
         self.fwd = 0
         self.turn = 0
         self.running = True
+        self.counter = 0
 
     def connect(self):
+        #service = DiscoveryService("hci0")
+        #devices = service.discover(4)
+        #print(devices)
         self.requester = GATTRequester("F7:9B:A8:A6:26:5F", False)
         print("Connecting...", end=' ')
         #sys.stdout.flush()
-
         self.requester.connect(True, channel_type="random")
         print("OK!")
         time.sleep(0.5)
@@ -109,8 +93,12 @@ class MekamonController:
         #print("Sending: ", msgOut)
         msgOut = binascii.unhexlify(msgOut)
         self.requester.write_cmd(0x000e, msgOut)
-        time.sleep(0.15)            
-
+        self.counter = self.counter + 1
+        if self.counter == 150:
+            self.requester.write_by_handle(0x000c, bytes([1, 0]))
+            self.counter = 0
+        time.sleep(0.15)
+ 
     def update(self):
         while self.running:
             self.mm_controller(self.fwd, self.turn)
